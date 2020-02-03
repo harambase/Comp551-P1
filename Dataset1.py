@@ -1,5 +1,5 @@
-import numpy as np 
-data = '/Users/tianchima/Desktop/ionosphere.data'
+import numpy as np
+data = 'ionosphere.data'
 with open(data, 'r') as f:
 	a = f.readlines()
 for i in range(len(a)):
@@ -17,4 +17,6 @@ for i in range(len(a)):
 		# 2 for bad
 	else:
 		output_array[i] = 0
-print(output_array)
+
+
+print(input_array)

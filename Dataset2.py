@@ -1,6 +1,6 @@
 import numpy as np 
 from sklearn.preprocessing import OneHotEncoder
-data = '/Users/tianchima/Desktop/adult.data'
+data = 'adult.data'
 # test data = '/Users/tianchima/Desktop/adult.test'
 with open(data, 'r') as f:
 	a = f.readlines()
