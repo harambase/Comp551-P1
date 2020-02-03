@@ -50,7 +50,7 @@ result = k_fold(df, lr, 5, rate, iteration)
 
 end_time = time.time()
 print("Elapsed time for Logistic Regression on the ionosphere set is %g seconds" % (end_time - start_time))
-print("The accuracy is %g" % result[0][0])
+print("The accuracy is %g" % result[0])
 
 # Plot number of iterations vs Cost
 plt.plot(result[1], '-y', label='a = ' + str(rate))
