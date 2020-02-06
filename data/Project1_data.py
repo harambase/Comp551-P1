@@ -93,7 +93,7 @@ def data_adult(data_path_adult):
 				list_i2.append(new_a[i][j])
 		list_input_continuous_features.append(list_i1)
 		list_input_categorical_features.append(list_i2)
-		if new_a[i][-1] == '>=50K':
+		if new_a[i][-1] == '>50K':
 			output_array[i] = 1
 		else:
 			output_array[i] = 0
