@@ -59,7 +59,28 @@ class LogisticRegression:
     def evaluate_acc(self, data_y, prediction_y):
         differences = 0
         for i in range(len(prediction_y)):
-            differences = differences + np.abs(data_y.iloc[i].values[0] - prediction_y[i])
+            delta = np.abs(data_y.iloc[i].values[0] - prediction_y[i])
+            differences = differences + delta
+            #if delta != 0:
+                #print(data_y.iloc[i].values[0])
 
         print(differences)
         return differences / len(prediction_y)
+
+
+    def confusion_matrix(self, data_y, prediction_y, category):
+        matrix = np.zeros(shape=(2, 2))
+
+        for i in range(len(prediction_y)):
+            if data_y.iloc[i].values[0] == category[1]:
+                if prediction_y[i] != 1:
+                    matrix[0][1] += 1 #True Positive
+                else:
+                    matrix[0][0] += 1 #False Positive
+            elif data_y.iloc[i].values[0] == category[0]:
+                if prediction_y[i] != 0:
+                    matrix[1][0] += 1 #True Negative
+                else:
+                    matrix[1][1] += 1 #False Negative
+
+        return matrix
