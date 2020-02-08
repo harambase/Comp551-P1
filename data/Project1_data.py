@@ -134,7 +134,6 @@ def data_adult(data_path_adult, whether_One_hot_coding):
         for j in range(len(new_a[0]) - 1):
             input_array_original[i][j] = str(new_a[i][j])
 
-    print(output_array)
     if whether_One_hot_coding:
         return input_array, output_array
     else:

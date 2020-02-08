@@ -119,9 +119,9 @@ def train_and_predict_adult():
     lens = len(df.columns)
     # Logistic regression
     lr = LogisticRegression(np.zeros((1, lens - 1), float))
-    rate = .001
-    iteration = 2500
-
+    rate = .01
+    iteration = 20
+    costList = []
     start_time = time.time()
 
     df = df.iloc[np.random.permutation(len(df))]
@@ -132,9 +132,9 @@ def train_and_predict_adult():
     pX = tdf.iloc[:, 0:lens - 1]
     pY = tdf.iloc[:, lens - 1:lens]
 
-    costList = lr.fit(X, np.array(Y), rate=rate, iteration=iteration)
+    costList = np.append(costList, lr.fit(X, np.array(Y), rate=rate, iteration=iteration))
     prediction = lr.predict(pX)
-    print(np.array(pY), prediction)
+    print(costList)
     accuracies = lr.evaluate_acc(pY, prediction)
     matrix = lr.confusion_matrix(pY, prediction, [0, 1])
     print(matrix)
@@ -153,7 +153,7 @@ def train_and_predict_adult():
     plt.show()
 
 
-# train_and_predict_ionosphere()
+train_and_predict_ionosphere()
 # train_and_predict_heart()
 # train_and_predict_haberman()
-train_and_predict_adult()
+# train_and_predict_adult()

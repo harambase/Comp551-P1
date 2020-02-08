@@ -28,18 +28,18 @@ class LogisticRegression:
 
     def fit(self, X, y, rate, iteration):
 
-        cost = [0]
+        cost = [1]
         costList = []
         difference = 1
-        min_difference = 1e-3
+        min_difference = 0.3
 
         #for iterator in range(0, iteration, 1):
-        while cost[0] >= min_difference:
+        while difference >= min_difference:
             gradient = self.gradient_cross_entropy(X, y)
 
-            self.w = self.w + rate * gradient
-            # difference = np.sum(list(self.w - wk))
-            # self.w = wk
+            wk = self.w + rate * gradient
+            difference = np.sum(list(self.w - wk))
+            self.w = wk
 
             cost = self.cross_entropy(X, y)
             costList.append(cost)
@@ -51,12 +51,13 @@ class LogisticRegression:
         prediction = []
         for i in range(len(X.index)):
             y_hat = self.sigmoid(np.array(X.iloc[i]))
-            if y_hat == 1:
-                prediction.append(1)
-            else:
-                prediction.append(np.log(y_hat / (1 - y_hat)))
-
-        prediction = [0 if p <= 0 else 1 for p in prediction]
+            # if y_hat == 1:
+            #     prediction.append(1)
+            # else:
+            prediction.append(y_hat)
+                #prediction.append(np.log(y_hat / (1 - y_hat)))
+        print(prediction)
+        prediction = [0 if p < 0.35 else 1 for p in prediction]
 
         return prediction
 
