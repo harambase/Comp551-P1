@@ -13,9 +13,10 @@ class LogisticRegression:
     def cross_entropy(self, X, y):
         J = 0
         for i in range(len(X.index)):
-            if self.sigmoid(np.array(X.iloc[i])) != 1 and self.sigmoid(np.array(X.iloc[i])) != 0:
-                z = np.dot(np.array(X.iloc[i]), self.w.T)
-                J += y[i] * np.log1p(np.exp(-z)) + (1 - y[i]) * np.log1p(np.exp(z))
+            #if self.sigmoid(np.array(X.iloc[i])) != 1 and self.sigmoid(np.array(X.iloc[i])) != 0:
+            z = np.dot(np.array(X.iloc[i]), self.w.T)
+            J += y[i] * np.log1p(np.exp(-z)) + (1 - y[i]) * np.log1p(np.exp(z))
+            #print(z)
 
         return [J / len(X.index)]
 
@@ -25,14 +26,21 @@ class LogisticRegression:
             dw += (np.array(X.iloc[i]) * (y[i] - self.sigmoid(np.array(X.iloc[i]))))
         return dw
 
-    def fit(self, X, y, rate=0.001, iteration=50000):
+    def fit(self, X, y, rate, iteration):
 
+        cost = [0]
         costList = []
+        difference = 1
+        min_difference = 1e-3
 
-        for iterator in range(0, iteration, 1):
+        #for iterator in range(0, iteration, 1):
+        while cost[0] >= min_difference:
             gradient = self.gradient_cross_entropy(X, y)
 
             self.w = self.w + rate * gradient
+            # difference = np.sum(list(self.w - wk))
+            # self.w = wk
+
             cost = self.cross_entropy(X, y)
             costList.append(cost)
 
@@ -48,10 +56,6 @@ class LogisticRegression:
             else:
                 prediction.append(np.log(y_hat / (1 - y_hat)))
 
-        # #softmax:
-        # yh = np.exp(z)
-        # yh /= np.sum(yh, 0)
-
         prediction = [0 if p <= 0 else 1 for p in prediction]
 
         return prediction
@@ -61,26 +65,22 @@ class LogisticRegression:
         for i in range(len(prediction_y)):
             delta = np.abs(data_y.iloc[i].values[0] - prediction_y[i])
             differences = differences + delta
-            #if delta != 0:
-                #print(data_y.iloc[i].values[0])
 
-        print(differences)
         return differences / len(prediction_y)
-
 
     def confusion_matrix(self, data_y, prediction_y, category):
         matrix = np.zeros(shape=(2, 2))
 
         for i in range(len(prediction_y)):
             if data_y.iloc[i].values[0] == category[1]:
-                if prediction_y[i] != 1:
-                    matrix[0][1] += 1 #True Positive
+                if prediction_y[i] == category[1]:
+                    matrix[0][0] += 1  # True Positive
                 else:
-                    matrix[0][0] += 1 #False Positive
+                    matrix[0][1] += 1  # False Positive
             elif data_y.iloc[i].values[0] == category[0]:
-                if prediction_y[i] != 0:
-                    matrix[1][0] += 1 #True Negative
+                if prediction_y[i] == category[0]:
+                    matrix[1][1] += 1  # True Negative
                 else:
-                    matrix[1][1] += 1 #False Negative
+                    matrix[1][0] += 1  # False Negative
 
         return matrix

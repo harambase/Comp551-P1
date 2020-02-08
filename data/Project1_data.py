@@ -121,7 +121,7 @@ def data_adult(data_path_adult, whether_One_hot_coding):
                 list_i2.append(new_a[i][j])
         list_input_continuous_features.append(list_i1)
         list_input_categorical_features.append(list_i2)
-        if new_a[i][-1] == '>50K':
+        if new_a[i][-1] == '>50K' or new_a[i][-1] == '>50K.':
             output_array[i] = 1
         else:
             output_array[i] = 0
@@ -133,10 +133,13 @@ def data_adult(data_path_adult, whether_One_hot_coding):
     for i in range(len(new_a)):
         for j in range(len(new_a[0]) - 1):
             input_array_original[i][j] = str(new_a[i][j])
+
+    print(output_array)
     if whether_One_hot_coding:
         return input_array, output_array
     else:
         return input_array_original, output_array
+
 
 
 # input_array, output_array = data_adult('/Users/tianchima/Desktop/adult.test', False)
