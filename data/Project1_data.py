@@ -160,7 +160,7 @@ def data_adult(data_path_adult, whether_One_hot_coding):
 	enc.fit(list_input_categorical_features)
 	list_enc_input_categorical_features = enc.transform(list_input_categorical_features).toarray()		
 	input_array = np.hstack((np.array(list_input_continuous_features),list_enc_input_categorical_features))
-	input_array_original = np.empty([len(new_a),len(new_a[0])-1], dtype = str)
+	input_array_original = np.array(new_a)
 	for i in range(len(new_a)):
 		for j in range(len(new_a[0])-1):
 			input_array_original[i][j] = str(new_a[i][j])
@@ -178,5 +178,6 @@ def split_into_train_test(input_array,output_array):
 	number_train_set = round(total_array.shape[0]*(1-ratio_test))
 	#return train_input_arrray, train_output_array, test_input_array, test_output_array
 	return total_array[:number_train_set,:][:,:-1], total_array[:number_train_set,:][:,-1],  total_array[number_train_set:,:][:,:-1],  total_array[number_train_set:,:][:,-1]
+
 
 
