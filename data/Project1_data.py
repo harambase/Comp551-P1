@@ -179,7 +179,7 @@ def split_into_train_test(input_array,output_array):
 	#return train_input_arrray, train_output_array, test_input_array, test_output_array
 	return total_array[:number_train_set,:][:,:-1], total_array[:number_train_set,:][:,-1],  total_array[number_train_set:,:][:,:-1],  total_array[number_train_set:,:][:,-1]
 
-input_array, output_array = data_adult('/Users/tianchima/Desktop/adult.data',False)
-feature1 = input_array[:,-1]
-print((feature1))
+#input_array, output_array = data_adult('/Users/tianchima/Desktop/adult.data',False)
+#feature1 = input_array[:,-1]
+#print((feature1))
 
