@@ -6,33 +6,6 @@ import matplotlib.pyplot as plt
 import time
 
 
-def create_df_ionosphere(file):
-
-    data = split_data(data_inosphere("../data/ionosphere.data"))
-
-    input_array = pd.DataFrame(data[0]).astype(float)
-    output_array = pd.DataFrame({'target': data[1]}).astype(float)
-    df = pd.concat([input_array, output_array], axis=1)
-
-    tinput_array = pd.DataFrame(data[2]).astype(float)
-    toutput_array = pd.DataFrame({'target': data[3]}).astype(float)
-    tdf = pd.concat([tinput_array, toutput_array], axis=1)
-
-    #print(df)
-
-    return df, tdf
-
-
-def create_df_haberman(file):
-    dataset = pd.DataFrame(pd.read_csv(file, header=None))
-    return dataset
-
-
-def create_df_heart(file):
-    dataset = pd.DataFrame(pd.read_csv(file, header=None, delim_whitespace=True))
-    return dataset
-
-
 def create_df_adult(file, train):
     global mean, max, min
     data = data_adult(file, True)
@@ -71,11 +44,11 @@ def k_fold(data, model, k, rate, iteration, category):
 
         pX = vdf.iloc[:, 0:lens - 1]
         pY = vdf.iloc[:, lens - 1:lens]
-        costList = np.append(costList, model.fit(X, np.array(Y), rate=rate, iteration=iteration))
+        costList = np.append(costList, model.fit(X, np.array(Y), rate, iteration))
         prediction = model.predict(pX)
         accuracies[i] = model.evaluate_acc(pY, prediction)
-        #matrix = model.confusion_matrix(pY, prediction, category)
-        #print(matrix)
+        # matrix = model.confusion_matrix(pY, prediction, category)
+        # print(matrix)
 
     prediction = model.predict(tdf.iloc[:, 0:lens - 1])
     print(model.evaluate_acc(tdf.iloc[:, lens - 1:lens], prediction))
@@ -87,31 +60,41 @@ def k_fold(data, model, k, rate, iteration, category):
 
 def train_and_predict_ionosphere():
     # Read Data
-    data = create_df_ionosphere("../data/ionosphere.data")
+    data = split_data(data_inosphere("../data/ionosphere.data"))
     train_and_predict_by_k_fold(data, 'ionosphere', [0, 1])
 
 
 def train_and_predict_haberman():
     # Read Data
-    df = create_df_ionosphere("../data/haberman.data")
-    train_and_predict_by_k_fold(df, 'haberman', [1, 2])
+    data = split_data(data_haberman("../data/haberman.data"))
+    train_and_predict_by_k_fold(data, 'haberman', [1, 2])
 
 
 def train_and_predict_heart():
     # Read Data
-    df = create_df_heart("../data/heart.data")
-    train_and_predict_by_k_fold(df, 'heart', [1, 2])
+    data = split_data(data_heart("../data/heart.data", True))
+    train_and_predict_by_k_fold(data, 'heart', [1, 2])
 
 
-def train_and_predict_by_k_fold(df, name, category):
+def train_and_predict_by_k_fold(data, name, category):
     # Logistic regression
-    rate = .005
-    iteration = 50
-    lr = LogisticRegression(np.zeros((1, len(df[0].columns) - 1), float))
+    rate = .01
+    iteration = 60
+
+    input_array = pd.DataFrame(data[0]).astype(float)*1e-3
+    output_array = pd.DataFrame({'target': data[1]}).astype(float)
+    df = pd.concat([input_array, output_array], axis=1)
+    print(df)
+
+    tinput_array = pd.DataFrame(data[2]).astype(float)*1e-3
+    toutput_array = pd.DataFrame({'target': data[3]}).astype(float)
+    tdf = pd.concat([tinput_array, toutput_array], axis=1)
+
+    lr = LogisticRegression(np.zeros((1, len(df.columns) - 1), float))
 
     start_time = time.time()
 
-    result = k_fold(df, lr, 5, rate, iteration, category)
+    result = k_fold([df, tdf], lr, 5, rate, iteration, category)
 
     end_time = time.time()
 
@@ -169,9 +152,9 @@ def train_and_predict_adult(size):
     plt.show()
 
 
-train_and_predict_ionosphere()
-# train_and_predict_heart()
-# train_and_predict_haberman()
+#train_and_predict_ionosphere()
+train_and_predict_heart()
+train_and_predict_haberman()
 # size = [200, 1000, 5000, 10000, 20000, 30161]
 # for i in range(0, 5, 1):
 #     train_and_predict_adult(size[i])

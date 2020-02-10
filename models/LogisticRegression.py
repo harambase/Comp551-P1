@@ -22,10 +22,10 @@ class LogisticRegression:
 
     def gradient_cross_entropy(self, X, y):
         dw = 0
-        lam = 0.1
+        lam = 1e-3
         for i in range(len(X.index)):
             dw += (np.array(X.iloc[i]) * (y[i] - self.sigmoid(np.array(X.iloc[i]))))
-        #dw += (lam * self.w)[0]
+        dw += (lam * self.w)[0]
         return dw
 
     def fit(self, X, y, rate, iteration):
