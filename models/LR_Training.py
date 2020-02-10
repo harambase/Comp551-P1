@@ -7,10 +7,20 @@ import time
 
 
 def create_df_ionosphere(file):
-    dataset = pd.DataFrame(pd.read_csv(file, header=None))
-    dataset.replace('g', 1, inplace=True)
-    dataset.replace('b', 0, inplace=True)
-    return dataset
+
+    data = split_data(data_inosphere("../data/ionosphere.data"))
+
+    input_array = pd.DataFrame(data[0]).astype(float)
+    output_array = pd.DataFrame({'target': data[1]}).astype(float)
+    df = pd.concat([input_array, output_array], axis=1)
+
+    tinput_array = pd.DataFrame(data[2]).astype(float)
+    toutput_array = pd.DataFrame({'target': data[3]}).astype(float)
+    tdf = pd.concat([tinput_array, toutput_array], axis=1)
+
+    #print(df)
+
+    return df, tdf
 
 
 def create_df_haberman(file):
@@ -28,51 +38,57 @@ def create_df_adult(file, train):
     data = data_adult(file, True)
     input_array = pd.DataFrame(data[0]).astype(float)
 
-    input_array = input_array.drop(input_array.loc[:, 1:3], axis=1)
-    input_array = input_array.drop(input_array.loc[:, 103:104], axis=1)
+    input_array = input_array.drop(input_array.loc[:, 1:1], axis=1)
+    # input_array = input_array.drop(input_array.loc[:, 103:104], axis=1)
 
     if train:
         mean = input_array.mean()
         min = input_array.min()
 
-    input_array = 1e-3 * input_array
+    input_array = 1e-4 * input_array
     output_array = pd.DataFrame({'105': data[1]}).astype(float)
     df = pd.concat([input_array, output_array], axis=1)
     print(df)
     return df
 
 
-def k_fold(df, model, k, rate, iteration, category):
+def k_fold(data, model, k, rate, iteration, category):
     costList = []
+    df = data[0]
+    tdf = data[1]
     lens = len(df.columns)
 
     df = df.iloc[np.random.permutation(len(df))]
     data_split = np.array_split(df, k)
     accuracies = np.ones(k)
 
-    for i in range(0, k-1, 1):
+    for i in range(0, k - 1, 1):
         df = pd.concat([df, data_split[i]]).drop_duplicates(keep=False)
-        tdf = data_split[i]
+        vdf = data_split[i]
 
         X = df.iloc[:, 0:lens - 1]
         Y = df.iloc[:, lens - 1:lens]
 
-        pX = tdf.iloc[:, 0:lens - 1]
-        pY = tdf.iloc[:, lens - 1:lens]
+        pX = vdf.iloc[:, 0:lens - 1]
+        pY = vdf.iloc[:, lens - 1:lens]
         costList = np.append(costList, model.fit(X, np.array(Y), rate=rate, iteration=iteration))
         prediction = model.predict(pX)
         accuracies[i] = model.evaluate_acc(pY, prediction)
-        matrix = model.confusion_matrix(pY, prediction, category)
-        print(matrix)
-        print(matrix[0][0])
+        #matrix = model.confusion_matrix(pY, prediction, category)
+        #print(matrix)
+
+    prediction = model.predict(tdf.iloc[:, 0:lens - 1])
+    print(model.evaluate_acc(tdf.iloc[:, lens - 1:lens], prediction))
+    matrix = model.confusion_matrix(tdf.iloc[:, lens - 1:lens], prediction, category)
+    print(matrix)
 
     return np.mean(accuracies), costList
 
 
 def train_and_predict_ionosphere():
     # Read Data
-    df = create_df_ionosphere("../data/ionosphere.data")
-    train_and_predict_by_k_fold(df, 'ionosphere', [0, 1])
+    data = create_df_ionosphere("../data/ionosphere.data")
+    train_and_predict_by_k_fold(data, 'ionosphere', [0, 1])
 
 
 def train_and_predict_haberman():
@@ -91,7 +107,7 @@ def train_and_predict_by_k_fold(df, name, category):
     # Logistic regression
     rate = .005
     iteration = 50
-    lr = LogisticRegression(np.zeros((1, len(df.columns) - 1), float))
+    lr = LogisticRegression(np.zeros((1, len(df[0].columns) - 1), float))
 
     start_time = time.time()
 
@@ -112,7 +128,7 @@ def train_and_predict_by_k_fold(df, name, category):
     plt.show()
 
 
-def train_and_predict_adult():
+def train_and_predict_adult(size):
     # Read Data
     df = create_df_adult("../data/adult.data", True)
     tdf = create_df_adult("../data/adult.test", False)
@@ -124,10 +140,10 @@ def train_and_predict_adult():
     costList = []
     start_time = time.time()
 
-    df = df.iloc[np.random.permutation(len(df))]
+    # df = df.iloc[np.random.permutation(len(df))]
 
-    X = df.iloc[:, 0:lens - 1]
-    Y = df.iloc[:, lens - 1:lens]
+    X = df.iloc[0:size, 0:lens - 1]
+    Y = df.iloc[0:size, lens - 1:lens]
 
     pX = tdf.iloc[:, 0:lens - 1]
     pY = tdf.iloc[:, lens - 1:lens]
@@ -156,4 +172,6 @@ def train_and_predict_adult():
 train_and_predict_ionosphere()
 # train_and_predict_heart()
 # train_and_predict_haberman()
-# train_and_predict_adult()
+# size = [200, 1000, 5000, 10000, 20000, 30161]
+# for i in range(0, 5, 1):
+#     train_and_predict_adult(size[i])
