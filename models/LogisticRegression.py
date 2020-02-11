@@ -13,63 +13,62 @@ class LogisticRegression:
     def cross_entropy(self, X, y):
         J = 0
         for i in range(len(X.index)):
-            #if self.sigmoid(np.array(X.iloc[i])) != 1 and self.sigmoid(np.array(X.iloc[i])) != 0:
             z = np.dot(np.array(X.iloc[i]), self.w.T)
             J += y[i] * np.log1p(np.exp(-z)) + (1 - y[i]) * np.log1p(np.exp(z))
-            #print(z)
-
         return [J / len(X.index)]
 
-    def gradient_cross_entropy(self, X, y):
+    def gradient_cross_entropy(self, X, y, lam):
         dw = 0
-        lam = 1e-3
         for i in range(len(X.index)):
             dw += (np.array(X.iloc[i]) * (y[i] - self.sigmoid(np.array(X.iloc[i]))))
-        dw += (lam * self.w)[0]
+        dw -= (lam * self.w)[0]
         return dw
 
-    def fit(self, X, y, rate, iteration):
-
-        cost = [1]
-        costList = []
-        difference = 1
-        min_difference = 0.05
-
+    def fit(self, X, y, rate, lam, iteration):
+        cost = []
+        difference = np.inf
+        min_difference = 1e-2
+        eps = 0.5
+        beta = .99
+        gradient = np.inf
+        dw = 0
+        k = 0
         for iterator in range(0, iteration, 1):
         #while difference >= min_difference:
-            gradient = self.gradient_cross_entropy(X, y)
-
-            wk = self.w + rate * gradient
+        #while np.linalg.norm(gradient) > eps:
+            gradient = self.gradient_cross_entropy(X, y, lam)
+            dw = (1 - beta) * gradient + beta * dw #M
+            wk = self.w + rate * dw
             difference = np.sum(list(self.w - wk))
             self.w = wk
+            k += 1
+            #print(np.linalg.norm(gradient))
 
-            cost = self.cross_entropy(X, y)
-            costList.append(cost)
+            cost.append(self.cross_entropy(X, y))
 
-        return costList
+        return cost
 
     # predict the data points
-    def predict(self, X):
+    def predict(self, X, category):
         prediction = []
         for i in range(len(X.index)):
             y_hat = self.sigmoid(np.array(X.iloc[i]))
-            # if y_hat == 1:
-            #     prediction.append(1)
-            # else:
-            prediction.append(y_hat)
-                #prediction.append(np.log(y_hat / (1 - y_hat)))
-        print(prediction)
-        prediction = [0 if p < 0.5 else 1 for p in prediction]
+            if y_hat == 1:
+                prediction.append(1)
+            else:
+                prediction.append(np.log(y_hat / (1 - y_hat)))
+
+        prediction = [category[0] if p < 0 else category[1] for p in prediction]
 
         return prediction
 
     def evaluate_acc(self, data_y, prediction_y):
-        differences = 0
+        acc = 0
         for i in range(len(prediction_y)):
-            delta = np.abs(data_y.iloc[i].values[0] - prediction_y[i])
-            differences = differences + delta
+            if data_y.iloc[i].values[0] == prediction_y[i]:
+                acc += 1
 
-        return differences / len(prediction_y)
+        return acc / len(prediction_y)
 
     def confusion_matrix(self, data_y, prediction_y, category):
         matrix = np.zeros(shape=(2, 2))

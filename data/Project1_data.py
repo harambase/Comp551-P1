@@ -182,6 +182,7 @@ def split_into_train_test(input_array,output_array):
 	return total_array[:number_train_set,:][:,:-1], total_array[:number_train_set,:][:,-1],  total_array[number_train_set:,:][:,:-1],  total_array[number_train_set:,:][:,-1]
 
 def data_normalized(train_validation_input_array, test_input_array):
+
 	mean_train_validation = np.mean(train_validation_input_array, axis=0)
 	std_train_validation = np.std(train_validation_input_array, axis=0)
 	delete_col = []
